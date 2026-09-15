@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>凡人修仙傳・天南篇：仙門爭霸</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --border-color: #475569;
+            --accent-gold: #fbbf24;
+            --accent-blue: #60a5fa;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+            --accent-purple: #c084fc;
+            --text-main: #ffffff;
+            --text-sub: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+            padding: 12px;
+            font-size: 18px;
+        }
+
+        header {
+            width: 100%; max-width: 1100px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; background-color: var(--panel-bg);
+            border: 2px solid var(--border-color); border-radius: 12px; margin-bottom: 12px;
+            flex-wrap: wrap; gap: 8px;
+        }
+
+        h1 { font-size: 1.6rem; color: var(--accent-gold); display: flex; align-items: center; gap: 8px; }
+
+        .system-controls { display: flex; gap: 10px; }
+
+        .btn {
+            background-color: var(--border-color); color: var(--text-main);
+            border: 2px solid rgba(255,255,255,0.2); padding: 9px 14px; border-radius: 10px;
+            cursor: pointer; font-size: 1rem; font-weight: bold;
+            display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+        }
+
+        .btn:hover:not(:disabled) { filter: brightness(1.2); transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background-color: #2563eb; }
+        .btn-success { background-color: #059669; }
+        .btn-danger { background-color: #dc2626; }
+        .btn-warning { background-color: var(--accent-gold); color: #000; }
+        .btn-purple { background-color: #7c3aed; }
+        .btn.active { outline: 3px solid #fff; }
+        .btn-small { font-size: 0.85rem; padding: 6px 10px; }
+
+        .resource-header {
+            width: 100%; max-width: 1100px;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px;
+        }
+
+        .res-box {
+            background-color: var(--panel-bg); border: 2px solid var(--border-color);
+            border-radius: 10px; padding: 8px; text-align: center; font-size: 1rem;
+        }
+
+        .res-title { color: var(--text-sub); font-size: 0.85rem; font-weight: bold; }
+        .res-val { font-weight: bold; color: var(--accent-gold); margin-top: 4px; font-size: 1.3rem; }
+
+        .game-layout {
+            width: 100%; max-width: 1100px;
+            display: grid; grid-template-columns: 1fr; gap: 14px;
+        }
+
+        @media (min-width: 860px) {
+            .game-layout { grid-template-columns: 320px 1fr; }
+        }
+
+        .sidebar { display: flex; flex-direction: column; gap: 12px; max-height: none; }
+
+        .panel {
+            background-color: var(--panel-bg); border: 2px solid var(--border-color);
+            border-radius: 12px; padding: 14px;
+        }
+
+        .panel-title {
+            font-size: 1.15rem; font-weight: bold; color: var(--accent-gold); margin-bottom: 10px;
+            border-bottom: 2px solid var(--border-color); padding-bottom: 6px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .panel-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+        .tab-btn {
+            flex: 1; background: rgba(0,0,0,0.3); border: 2px solid var(--border-color);
+            color: var(--text-sub); padding: 6px 4px; border-radius: 8px; cursor: pointer;
+            font-size: 0.85rem; font-weight: bold; text-align: center;
+        }
+        .tab-btn.active { background: var(--accent-gold); color: #000; border-color: var(--accent-gold); }
+
+        .build-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.3); padding: 9px 10px; border-radius: 8px;
+            margin-bottom: 8px; font-size: 0.95rem; gap: 6px;
+        }
+        .build-item .info { display: flex; flex-direction: column; }
+        .build-item .sub { font-size: 0.75rem; color: var(--text-sub); }
+
+        .main-stage { display: flex; flex-direction: column; gap: 12px; }
+
+        .grid-board {
+            width: 100%;
+            background-color: #0b0f19; border: 3px solid var(--border-color);
+            border-radius: 12px; display: grid;
+            gap: 3px; padding: 6px; margin: 0 auto;
+            overflow: hidden; box-sizing: border-box;
+        }
+
+        .cell {
+            background-color: #182232; border-radius: 6px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; cursor: pointer; transition: background-color 0.15s;
+            min-width: 0; min-height: 0;
+        }
+
+        .cell:hover { background-color: #2c3e55; }
+        .cell.selected { border: 3px solid var(--accent-gold); background-color: #1e293b; }
+        .cell.reachable { background-color: rgba(59, 130, 246, 0.45); border: 2px dashed var(--accent-blue); }
+        .cell.attackable { background-color: rgba(239, 68, 68, 0.45); border: 2px dashed var(--accent-red); }
+        .cell.spellable { background-color: rgba(192, 132, 252, 0.45); border: 2px dashed var(--accent-purple); }
+        .cell.has-acted { filter: grayscale(0.7); opacity: 0.8; }
+        .cell.fogged { background-color: #05070c; }
+        .cell.fogged:hover { background-color: #05070c; }
+
+        .cell.terrain-forest { background-color: #14351f; }
+        .cell.terrain-obstacle { background-color: #2b2320; }
+        .cell.terrain-water { background-color: #0c2a3d; }
+        .terrain-icon { position: absolute; top: 2px; left: 2px; font-size: 0.9rem; opacity: 0.8; }
+
+        .cell-emoji { font-size: 1.9rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); z-index: 2; }
+        .cell-badge {
+            position: absolute; bottom: 3px; right: 3px;
+            background: rgba(0,0,0,0.9); color: #fff; font-size: 0.75rem; font-weight: bold;
+            padding: 1px 5px; border-radius: 4px; border: 1px solid var(--text-sub); z-index: 3;
+        }
+        .status-row { position: absolute; top: 2px; right: 2px; display: flex; gap: 2px; z-index: 3; }
+        .status-icon { font-size: 0.7rem; background: rgba(0,0,0,0.7); border-radius: 4px; padding: 0 2px; }
+
+        .log-panel {
+            height: 110px; overflow-y: auto; font-family: monospace;
+            font-size: 0.9rem; color: var(--text-sub); background: #090d16;
+            border: 2px solid var(--border-color); border-radius: 8px; padding: 10px;
+            display: flex; flex-direction: column-reverse;
+        }
+
+        .log-entry { margin-bottom: 4px; }
+        .log-entry.player { color: #93c5fd; }
+        .log-entry.enemy { color: #fca5a5; }
+        .log-entry.system { color: #fde047; }
+        .log-entry.magic { color: var(--accent-purple); }
+
+        input[type="file"] { display: none; }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px;
+        }
+        .modal-box {
+            background: var(--panel-bg); border: 2px solid var(--accent-gold); border-radius: 16px;
+            padding: 24px; max-width: 640px; width: 100%; max-height: 90vh; overflow-y: auto;
+        }
+        .modal-box h2 { color: var(--accent-gold); margin-bottom: 14px; font-size: 1.4rem; }
+        .faction-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+        @media (max-width: 500px) { .faction-grid { grid-template-columns: 1fr; } }
+        .faction-card {
+            background: rgba(0,0,0,0.3); border: 2px solid var(--border-color); border-radius: 12px;
+            padding: 14px; cursor: pointer; text-align: center; transition: all 0.15s;
+        }
+        .faction-card:hover { border-color: var(--accent-gold); transform: translateY(-3px); }
+        .faction-card .f-emoji { font-size: 2.4rem; }
+        .faction-card .f-name { font-weight: bold; color: var(--accent-gold); margin: 6px 0; }
+        .faction-card .f-desc { font-size: 0.8rem; color: var(--text-sub); }
+
+        .equip-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 10px; }
+        .equip-slot {
+            background: rgba(0,0,0,0.3); border: 2px dashed var(--border-color); border-radius: 8px;
+            padding: 8px 4px; text-align: center; font-size: 0.75rem; cursor: pointer;
+        }
+        .equip-slot.filled { border-style: solid; border-color: var(--accent-gold); }
+        .equip-slot .e-emoji { font-size: 1.4rem; display: block; }
+
+        .talent-item { display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.3); padding:8px 10px; border-radius:8px; margin-bottom:6px; font-size:0.85rem;}
+
+        .stat-bar { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 3px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🗺️ 凡人修仙傳・天南篇</h1>
+        <div class="system-controls">
+            <button class="btn btn-success" id="exportBtn">📥 匯出</button>
+            <button class="btn btn-primary" id="importBtn">📤 匯入</button>
+            <input type="file" id="fileInput" accept=".json">
+        </div>
+    </header>
+
+    <div class="resource-header">
+        <div class="res-box"><div class="res-title">💎 靈石 (+<span id="incGold">10</span>)</div><div class="res-val" id="valGold">100</div></div>
+        <div class="res-box"><div class="res-title">🌿 靈木 (+<span id="incWood">5</span>)</div><div class="res-val" id="valWood">50</div></div>
+        <div class="res-box"><div class="res-title">⛏️ 玄鐵 (+<span id="incOre">3</span>)</div><div class="res-val" id="valOre">30</div></div>
+        <div class="res-box"><div class="res-title">🔷 靈晶 (+<span id="incCrystals">1</span>)</div><div class="res-val" id="valCrystals">10</div></div>
+        <div class="res-box"><div class="res-title">🌀 法力 (上限<span id="manaMax">50</span>)</div><div class="res-val" id="valMana">50</div></div>
+    </div>
+
+    <div class="game-layout">
+        <div class="sidebar">
+            <div class="panel-tabs">
+                <div class="tab-btn active" data-tab="build">🏯 宗門</div>
+                <div class="tab-btn" data-tab="hero">🧙 修士</div>
+                <div class="tab-btn" data-tab="magic">📜 玉簡</div>
+            </div>
+
+            <div id="tab-build">
+                <div class="panel"><div class="panel-title">🏯 宗門建設</div><div id="buildingList"></div></div>
+                <div class="panel"><div class="panel-title">⚔️ 弟子招募</div><div id="recruitList"></div></div>
+                <div class="panel"><div class="panel-title">🎒 麾下弟子</div><div id="armyStatus" style="font-size: 0.95rem; font-weight: bold;"></div></div>
+            </div>
+
+            <div id="tab-hero" style="display:none;">
+                <div class="panel">
+                    <div class="panel-title">🧙 修為境界</div>
+                    <div id="heroInfo"></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">🌟 功法樹</div>
+                    <div id="talentList"></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">🎒 法寶隨身</div>
+                    <div class="equip-grid" id="equipSlots"></div>
+                    <div class="panel-title" style="font-size:0.95rem;">儲物袋</div>
+                    <div id="inventoryList" style="font-size:0.85rem;"></div>
+                </div>
+            </div>
+
+            <div id="tab-magic" style="display:none;">
+                <div class="panel">
+                    <div class="panel-title">📜 五行法術玉簡</div>
+                    <div id="spellList" style="font-size:0.85rem;"></div>
+                    <div style="font-size:0.75rem; color:var(--text-sub); margin-top:8px;">💡 攻擊、禁制、療傷之術須於鬥法中施展；遁術可於遊歷地圖上使用。</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-stage">
+            <div class="panel" style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap:8px;">
+                <div>
+                    <div id="modeStatus" style="font-weight: bold; color: var(--accent-gold); font-size: 1.1rem;">境況: 🗺️ 天南遊歷</div>
+                    <div id="turnInfo" style="font-size:0.9rem; color:var(--text-sub); margin-top:2px;">今日腳程: 5/5</div>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="btn btn-purple btn-small" id="btnCancelSpell" style="display:none;">✖ 取消施法</button>
+                    <button class="btn btn-danger" id="btnActionTurn">⏳ 結束今日遊歷</button>
+                </div>
+            </div>
+
+            <div class="grid-board" id="board"></div>
+            <div class="log-panel" id="gameLog"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="factionModal">
+        <div class="modal-box">
+            <h2>⚜️ 拜入何門？</h2>
+            <div style="color:var(--text-sub); font-size:0.9rem;">天南靈界，正道七派與魔道諸宗並立。你以一介凡人踏入仙途，需擇一門派安身立命，煉氣築基、廣招門人，闖過越國荒野、幽冥鬼窟直至虛天殿裂隙。每個門派各有獨門弟子與功法，弟子可經由宗門建設「入門 ➔ 進階」再修一層。</div>
+            <div class="faction-grid" id="factionGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 地形系統 ====================
+        const TERRAIN = {
+            PLAIN:    { name: '曠野', emoji: '', moveCost: 1, defBonus: 0, passable: true },
+            FOREST:   { name: '靈木林', emoji: '🌳', moveCost: 2, defBonus: 0.15, passable: true },
+            OBSTACLE: { name: '亂石', emoji: '🪨', moveCost: Infinity, defBonus: 0, passable: false },
+            WATER:    { name: '寒潭', emoji: '🌊', moveCost: Infinity, defBonus: 0, passable: false, flyOnly: true }
+        };
+
+        const BROWS = 9, BCOLS = 11; // 鬥法棋盤：完整版規模
+        const WROWS = 8, WCOLS = 8;  // 大地圖規模
+
+        // ==================== 門派與弟子譜系 ====================
+        // 每條弟子線包含 basic(入門)與 upg(宗門建築大成後可招收的進階型態)
+        const FACTIONS = {
+            SANCTUARY: {
+                id: 'SANCTUARY', name: '黃楓谷', emoji: '🍁', heroName: '黃楓谷煉氣士', heroEmoji: '🧙‍♂️',
+                desc: '天南正道七派之一，符籙、丹道與劍修並重，攻守均衡、續戰力極強。',
+                lines: [
+                    { key: 'L1', building: '外門演武場', buildingEmoji: '⚔️', reqRes:{gold:80,wood:20}, upgRes:{gold:150,ore:20},
+                      basic: { name:'外門弟子', emoji:'🛡️', hp:20, atk:5, speed:2, range:1, cost:{gold:25,wood:0,ore:0,crystals:0} },
+                      upg:   { name:'內門劍修', emoji:'💂', hp:32, atk:8, speed:2, range:1, cost:{gold:40,wood:0,ore:5,crystals:0} } },
+                    { key: 'L2', building: '符寶閣', buildingEmoji: '🎯', reqRes:{gold:100,wood:40}, upgRes:{gold:180,ore:15},
+                      basic: { name:'御符弟子', emoji:'🏹', hp:12, atk:4, speed:1, range:4, cost:{gold:25,wood:10,ore:0,crystals:0}, ranged:true },
+                      upg:   { name:'符寶執事', emoji:'🎯', hp:16, atk:6, speed:2, range:5, cost:{gold:40,wood:15,ore:0,crystals:0}, ranged:true } },
+                    { key: 'L3', building: '丹房', buildingEmoji: '🍶', reqRes:{gold:150,wood:20}, upgRes:{gold:220,crystals:10},
+                      basic: { name:'煉丹師', emoji:'🙏', hp:14, atk:3, speed:1, range:2, cost:{gold:35,wood:0,ore:0,crystals:1}, ranged:true },
+                      upg:   { name:'丹道真人', emoji:'✨', hp:20, atk:5, speed:1, range:3, cost:{gold:55,wood:0,ore:0,crystals:2}, ranged:true } },
+                    { key: 'L4', building: '靈禽崖', buildingEmoji: '🏔️', reqRes:{gold:300,wood:50}, upgRes:{gold:400,crystals:20},
+                      basic: { name:'青鸞靈禽', emoji:'🦅', hp:40, atk:10, speed:4, range:1, cost:{gold:120,wood:0,ore:10,crystals:5}, flying:true },
+                      upg:   { name:'金翅靈禽', emoji:'🦁', hp:55, atk:14, speed:5, range:1, cost:{gold:170,wood:0,ore:15,crystals:8}, flying:true, noCounter:true } }
+                ]
+            },
+            INFERNO: {
+                id: 'INFERNO', name: '化血門', emoji: '🩸', heroName: '化血老祖', heroEmoji: '😈',
+                desc: '天南魔道大宗，血煞之術狠辣無比，攻高且附帶血煞蝕體。',
+                lines: [
+                    { key: 'L1', building: '血池', buildingEmoji: '🚪', reqRes:{gold:80,wood:20}, upgRes:{gold:150,ore:20},
+                      basic: { name:'血奴', emoji:'👺', hp:16, atk:5, speed:2, range:1, cost:{gold:25,wood:0,ore:0,crystals:0} },
+                      upg:   { name:'血魔衛', emoji:'👹', hp:26, atk:8, speed:3, range:1, cost:{gold:40,wood:0,ore:5,crystals:0} } },
+                    { key: 'L2', building: '噬血狼窟', buildingEmoji: '🦴', reqRes:{gold:100,wood:40}, upgRes:{gold:180,ore:15},
+                      basic: { name:'血影妖狼', emoji:'🐺', hp:18, atk:6, speed:4, range:1, cost:{gold:25,wood:10,ore:0,crystals:0} },
+                      upg:   { name:'噬血狼王', emoji:'🐕‍🦺', hp:26, atk:9, speed:5, range:1, cost:{gold:40,wood:15,ore:0,crystals:0} } },
+                    { key: 'L3', building: '血祭法壇', buildingEmoji: '🔺', reqRes:{gold:150,wood:20}, upgRes:{gold:220,crystals:10},
+                      basic: { name:'血焰修士', emoji:'🧙', hp:16, atk:8, speed:1, range:3, cost:{gold:35,wood:0,ore:0,crystals:1}, ranged:true, ability:'bleed' },
+                      upg:   { name:'血煞真人', emoji:'🔥', hp:22, atk:11, speed:1, range:4, cost:{gold:55,wood:0,ore:0,crystals:2}, ranged:true, ability:'bleed' } },
+                    { key: 'L4', building: '血魔洞天', buildingEmoji: '🌋', reqRes:{gold:300,wood:50}, upgRes:{gold:400,crystals:20},
+                      basic: { name:'血魔', emoji:'😈', hp:65, atk:16, speed:3, range:1, cost:{gold:120,wood:0,ore:10,crystals:5}, flying:true },
+                      upg:   { name:'血魔老祖', emoji:'👿', hp:85, atk:20, speed:4, range:1, cost:{gold:170,wood:0,ore:15,crystals:8}, flying:true, noCounter:true } }
+                ]
+            },
+            NECROPOLIS: {
+                id: 'NECROPOLIS', name: '鬼靈門', emoji: '⚰️', heroName: '鬼道修士', heroEmoji: '🧟‍♀️',
+                desc: '驅使屍傀與陰魂的魔道宗門，數量龐大，擅長屍毒消耗。',
+                lines: [
+                    { key: 'L1', building: '屍窖', buildingEmoji: '⚰️', reqRes:{gold:80,wood:20}, upgRes:{gold:150,ore:20},
+                      basic: { name:'屍傀', emoji:'💀', hp:14, atk:4, speed:2, range:1, cost:{gold:20,wood:0,ore:0,crystals:0} },
+                      upg:   { name:'血屍', emoji:'☠️', hp:22, atk:7, speed:2, range:1, cost:{gold:35,wood:0,ore:5,crystals:0} } },
+                    { key: 'L2', building: '陰魂塔', buildingEmoji: '🏚️', reqRes:{gold:100,wood:40}, upgRes:{gold:180,ore:15},
+                      basic: { name:'陰魂射手', emoji:'🏹', hp:12, atk:5, speed:1, range:4, cost:{gold:25,wood:10,ore:0,crystals:0}, ranged:true, ability:'poison' },
+                      upg:   { name:'怨鬼射手', emoji:'👻', hp:16, atk:7, speed:2, range:5, cost:{gold:40,wood:15,ore:0,crystals:0}, ranged:true, ability:'poison' } },
+                    { key: 'L3', building: '鬼道法壇', buildingEmoji: '🗼', reqRes:{gold:150,wood:20}, upgRes:{gold:220,crystals:10},
+                      basic: { name:'養鬼修士', emoji:'🧙‍♂️', hp:18, atk:9, speed:1, range:3, cost:{gold:35,wood:0,ore:0,crystals:1}, ranged:true },
+                      upg:   { name:'鬼王', emoji:'🔮', hp:24, atk:12, speed:1, range:4, cost:{gold:55,wood:0,ore:0,crystals:2}, ranged:true } },
+                    { key: 'L4', building: '屍蛟洞窟', buildingEmoji: '🦴', reqRes:{gold:300,wood:50}, upgRes:{gold:400,crystals:20},
+                      basic: { name:'屍蛟', emoji:'🐲', hp:70, atk:17, speed:3, range:1, cost:{gold:120,wood:0,ore:10,crystals:5}, flying:true },
+                      upg:   { name:'萬屍蛟龍', emoji:'🐉', hp:95, atk:22, speed:4, range:1, cost:{gold:170,wood:0,ore:15,crystals:8}, flying:true, noCounter:true } }
+                ]
+            },
+            DUNGEON: {
+                id: 'DUNGEON', name: '靈獸山', emoji: '🐾', heroName: '御獸真人', heroEmoji: '🥷',
+                desc: '天南馭獸名門，妖獸靈活迅捷，毒蟲與蛟龍並用。',
+                lines: [
+                    { key: 'L1', building: '御獸苑', buildingEmoji: '🕳️', reqRes:{gold:80,wood:20}, upgRes:{gold:150,ore:20},
+                      basic: { name:'馭獸弟子', emoji:'👦', hp:16, atk:5, speed:3, range:1, cost:{gold:22,wood:0,ore:0,crystals:0} },
+                      upg:   { name:'馭獸戰修', emoji:'🗡️', hp:24, atk:8, speed:3, range:1, cost:{gold:38,wood:0,ore:5,crystals:0} } },
+                    { key: 'L2', building: '毒蛛洞', buildingEmoji: '🕸️', reqRes:{gold:100,wood:40}, upgRes:{gold:180,ore:15},
+                      basic: { name:'幽冥毒蛛', emoji:'🕷️', hp:16, atk:6, speed:3, range:1, cost:{gold:25,wood:10,ore:0,crystals:0}, ability:'poison' },
+                      upg:   { name:'萬毒巨蛛', emoji:'🕷️', hp:24, atk:9, speed:4, range:1, cost:{gold:40,wood:15,ore:0,crystals:0}, ability:'poison' } },
+                    { key: 'L3', building: '御靈殿', buildingEmoji: '🌑', reqRes:{gold:150,wood:20}, upgRes:{gold:220,crystals:10},
+                      basic: { name:'控獸符修', emoji:'🧝', hp:15, atk:8, speed:1, range:3, cost:{gold:35,wood:0,ore:0,crystals:1}, ranged:true },
+                      upg:   { name:'馭靈長老', emoji:'🌚', hp:20, atk:11, speed:1, range:4, cost:{gold:55,wood:0,ore:0,crystals:2}, ranged:true } },
+                    { key: 'L4', building: '妖蛟潭', buildingEmoji: '🕳️', reqRes:{gold:300,wood:50}, upgRes:{gold:400,crystals:20},
+                      basic: { name:'黑鱗妖蛟', emoji:'🐲', hp:75, atk:18, speed:3, range:1, cost:{gold:120,wood:0,ore:10,crystals:5}, flying:true },
+                      upg:   { name:'化龍妖蛟', emoji:'🐉', hp:100, atk:23, speed:4, range:1, cost:{gold:170,wood:0,ore:15,crystals:8}, flying:true, noCounter:true } }
+                ]
+            }
+        };
+
+        // ==================== 魔法系統：五行法術 ====================
+        const SPELLS = {
+            FIREBALL:  { id:'FIREBALL', school:'火屬', emoji:'🔥', name:'火球術', cost:15, type:'damage',
+                         desc:'引動火屬靈力，對目標及周圍1格造成範圍灼傷', dmg:18, aoe:1, target:'enemy', usableIn:'battle' },
+            FROST:     { id:'FROST', school:'水屬', emoji:'❄️', name:'玄冰禁術', cost:12, type:'control',
+                         desc:'凍住目標1回合，本回合無法遁走', target:'enemy', usableIn:'battle', effect:'root', duration:1 },
+            REGROWTH:  { id:'REGROWTH', school:'木屬', emoji:'🌿', name:'碧靈回春訣', cost:10, type:'buff',
+                         desc:'以木屬靈力療傷，回復我方弟子氣血', heal:16, target:'ally', usableIn:'battle' },
+            BLINK:     { id:'BLINK', school:'遁術', emoji:'🌀', name:'縮地成寸', cost:8, type:'strategic',
+                         desc:'施展遁光，瞬間移動至地圖上任一已探索之地', target:'any', usableIn:'world' }
+        };
+
+        // ==================== 修士法寶與功法 ====================
+        const EQUIPMENT_ITEMS = [
+            { id:'helm_iron',   slot:'helmet', name:'玄鐵冠',     emoji:'⛑️', bonus:{def:2} },
+            { id:'helm_horn',   slot:'helmet', name:'妖角法冠',   emoji:'🪖', bonus:{atk:1,def:1} },
+            { id:'sword_flame', slot:'weapon', name:'烈焰飛劍',   emoji:'🗡️', bonus:{atk:3} },
+            { id:'staff_arcane',slot:'weapon', name:'聚靈法杖',   emoji:'🔱', bonus:{mana:15} },
+            { id:'armor_plate', slot:'armor',  name:'玄鐵法甲',   emoji:'🥋', bonus:{def:4} },
+            { id:'armor_robe',  slot:'armor',  name:'靈蠶寶衣',   emoji:'👘', bonus:{mana:10,def:1} },
+            { id:'boots_wind',  slot:'boots',  name:'風靈遁靴',   emoji:'👢', bonus:{speed:1} },
+            { id:'boots_iron',  slot:'boots',  name:'玄鐵重靴',   emoji:'🥾', bonus:{def:1,speed:1} }
+        ];
+
+        const TALENTS = [
+            { id:'t_atk',   name:'鬥法精要', emoji:'⚔️', desc:'全體弟子攻擊 +1（可重複）', bonus:{atk:1} },
+            { id:'t_def',   name:'護體靈盾', emoji:'🛡️', desc:'全體弟子減傷 +5%（可重複）', bonus:{def:1} },
+            { id:'t_mana',  name:'靈力精純', emoji:'🔮', desc:'法力上限 +20（可重複）', bonus:{mana:20} },
+            { id:'t_speed', name:'風遁身法', emoji:'💨', desc:'全體弟子移動力 +1（可重複）', bonus:{speed:1} }
+        ];
+
+        // ==================== 遊戲狀態 ====================
+        let state = null;
+
+        function makeInitialBuildings(faction) {
+            const b = {
+                townHall: { name:'宗門大殿', emoji:'🏛️', level:1, maxLvl:3, cost:{gold:100,wood:20}, desc:'每回合 +15 靈石/等級' },
+                sawmill:  { name:'靈植園', emoji:'🪵', level:1, maxLvl:3, cost:{gold:50,wood:10}, desc:'每回合 +8 靈木/等級' },
+                mine:     { name:'玄鐵礦洞', emoji:'⛏️', level:1, maxLvl:3, cost:{gold:50,wood:15}, desc:'每回合 +5 玄鐵/等級' },
+                mageGuild:{ name:'聚靈法陣', emoji:'🔮', level:1, maxLvl:3, cost:{gold:120,crystals:5}, desc:'提升法力上限與每回合回復' }
+            };
+            faction.lines.forEach(line => {
+                b[line.key] = {
+                    name: line.building, emoji: line.buildingEmoji, level: 0, maxLvl: 2,
+                    cost: line.reqRes, upgCost: line.upgRes,
+                    desc: `可招收 ${line.basic.emoji} ${line.basic.name}（建築大成後可招收 ${line.upg.emoji} ${line.upg.name}）`
+                };
+            });
+            return b;
+        }
+
+        function newGameState(factionId) {
+            const faction = FACTIONS[factionId];
+            const startUnit = { ...faction.lines[0].basic, id: faction.lines[0].key, factionId, tier:'basic' };
+            return {
+                factionId,
+                mode: 'world',
+                resources: { gold: 250, wood: 100, ore: 60, crystals: 15, mana: 50, manaMax: 50 },
+                buildings: makeInitialBuildings(faction),
+                playerArmy: [ { ...startUnit, count: 5 } ],
+                hero: {
+                    name: faction.heroName, emoji: faction.heroEmoji,
+                    level: 1, xp: 0, xpNext: 100, talentPoints: 1,
+                    talents: {}, stats: { atk:0, def:0, mana:0, speed:0 },
+                    equipment: { helmet:null, weapon:null, armor:null, boots:null },
+                    inventory: []
+                },
+                currentLevelIndex: 0,
+                levels: [ makeLevelData(0) ],
+                heroPos: { r: WROWS-1, c: 0 }, stepsLeft: 5, worldTurn: 1,
+                battle: null,
+                battleTile: null,
+                castingSpell: null,
+                activeTab: 'build'
+            };
+        }
+
+        // ==================== 無限關卡：主題與地圖生成 ====================
+        const LEVEL_THEMES = [
+            { name: '越國青竹林', boss: { emoji: '🐲', name: '守林妖蟒' },
+              monsters: [ { emoji: '👹', name: '山匪散修' }, { emoji: '🐺', name: '荒野妖狼群' }, { emoji: '🐗', name: '暴怒妖豬群' } ],
+              chest: { emoji: '📦', name: '遺落儲物袋' } },
+            { name: '幽冥鬼窟', boss: { emoji: '👑', name: '鬼靈門長老' },
+              monsters: [ { emoji: '🧟', name: '穴中屍傀' }, { emoji: '🕷️', name: '幽冥毒蛛群' }, { emoji: '🦇', name: '嗜血妖蝠' } ],
+              chest: { emoji: '💰', name: '鬼窟藏寶' } },
+            { name: '血焰火山', boss: { emoji: '🔥', name: '化血門血煞真人' },
+              monsters: [ { emoji: '🦂', name: '熔岩妖蠍' }, { emoji: '🐉', name: '火屬幼蛟' }, { emoji: '🌋', name: '火靈傀儡' } ],
+              chest: { emoji: '🔮', name: '炎靈寶匣' } },
+            { name: '寒冰洞天', boss: { emoji: '❄️', name: '掩月宗玄冰長老' },
+              monsters: [ { emoji: '🐻‍❄️', name: '寒原妖熊' }, { emoji: '🧊', name: '冰晶傀儡' }, { emoji: '🐧', name: '雪域守衛' } ],
+              chest: { emoji: '💎', name: '冰封靈晶堆' } },
+            { name: '瘴氣毒沼', boss: { emoji: '🦑', name: '萬毒老祖' },
+              monsters: [ { emoji: '🐸', name: '毒瘴妖蛙' }, { emoji: '🐍', name: '沼澤毒蟒' }, { emoji: '🪲', name: '蝕骨蟲群' } ],
+              chest: { emoji: '🏺', name: '沉沒古甕' } },
+            { name: '天南浮空靈島', boss: { emoji: '🦅', name: '風雷禽王' },
+              monsters: [ { emoji: '🌪️', name: '旋風靈體' }, { emoji: '⚡', name: '雷光妖禽' }, { emoji: '☁️', name: '雲端守陣' } ],
+              chest: { emoji: '🎁', name: '雲上遺寶' } },
+            { name: '虛天殿裂隙', boss: { emoji: '👁️', name: '虛天殿守衛' },
+              monsters: [ { emoji: '👻', name: '虛空遊魂' }, { emoji: '🕳️', name: '噬靈之影' }, { emoji: '🌑', name: '禁制碎片' } ],
+              chest: { emoji: '🗝️', name: '虛天寶庫' } }
+        ];
+
+        function levelTheme(levelIndex) {
+            return LEVEL_THEMES[levelIndex % LEVEL_THEMES.length];
+        }
+
+        function makeLevelData(levelIndex) {
+            return {
+                name: `第 ${levelIndex+1} 重・${levelTheme(levelIndex).name}`,
+                map: null, explored: null, bossDefeated: false, portalUnlocked: false
+            };
+        }
+
+        function generateLevelMap(levelIndex) {
+            if (!state.levels[levelIndex]) state.levels[levelIndex] = makeLevelData(levelIndex);
+            const lvl = state.levels[levelIndex];
+            const theme = levelTheme(levelIndex);
+            const map = Array(WROWS).fill(null).map(() => Array(WCOLS).fill(null));
+            const explored = Array(WROWS).fill(null).map(() => Array(WCOLS).fill(false));
+
+            map[WROWS-1][0] = { type: 'HERO', emoji: state.hero.emoji, name: '本尊' };
+            if (levelIndex === 0) map[0][WCOLS-1] = { type: 'TOWN', emoji: '🏰', name: '宗門山門' };
+
+            const elements = [
+                { type: 'MINE_GOLD', emoji: '🪙', name: '靈石礦脈 (產靈石+10)' },
+                { type: 'MINE_WOOD', emoji: '🌲', name: '靈植園 (產靈木+5)' },
+                { type: 'MINE_ORE',  emoji: '⛰️', name: '玄鐵礦場 (產玄鐵+3)' }
+            ];
+
+            // 遺寶數量：每 3 重多一個，上限 4 個
+            const chestCount = Math.min(2 + Math.floor(levelIndex/3), 4);
+            for (let i = 0; i < chestCount; i++) {
+                elements.push({ type: 'CHEST', emoji: theme.chest.emoji, name: theme.chest.name });
+            }
+
+            // 散修妖獸數量：每 2 重多一處，上限 5 處；強度隨重數提升
+            const monsterCount = Math.min(2 + Math.floor(levelIndex/2), 5);
+            for (let i = 0; i < monsterCount; i++) {
+                const m = theme.monsters[i % theme.monsters.length];
+                const tier = (levelIndex === 0) ? 'weak' : (i % 2 === 0 ? 'mid' : 'weak');
+                elements.push({ type: 'MONSTER', emoji: m.emoji, name: m.name, enemy: makeEnemyArmy(tier, levelIndex) });
+            }
+
+            // 本重守關魔頭：誅殺後浮現傳送法陣
+            elements.push({
+                type: 'BOSS', emoji: theme.boss.emoji,
+                name: `${theme.boss.name}（第 ${levelIndex+1} 重・守關魔頭）`,
+                enemy: makeEnemyArmy('boss', levelIndex)
+            });
+
+            elements.forEach(item => placeRandom(map, item));
+
+            lvl.map = map;
+            lvl.explored = explored;
+            revealFog(levelIndex, WROWS-1, 0, 2);
+        }
+
+        function placeRandom(map, item) {
+            let r, c, tries = 0;
+            do { r = Math.floor(Math.random()*WROWS); c = Math.floor(Math.random()*WCOLS); tries++; }
+            while (map[r][c] !== null && tries < 200);
+            if (!map[r][c]) map[r][c] = item;
+        }
+
+        function makeEnemyArmy(tier, levelIndex) {
+            const factions = Object.values(FACTIONS);
+            const f = factions[Math.floor(Math.random()*factions.length)];
+            const depth = Math.max(0, levelIndex || 0);
+            // 每深入一重，敵修規模提升 22%
+            const depthScale = 1 + 0.22 * depth;
+            const scale = ({ weak: 1, mid: 1.6, boss: 2.4, finalboss: 3.2 }[tier] || 1) * depthScale;
+            const line1 = f.lines[0].basic, line2 = f.lines[1].basic;
+            const army = [
+                { ...line1, id: f.lines[0].key, factionId: f.id, tier:'basic', team:'enemy', count: Math.ceil(4*scale) }
+            ];
+            if (tier !== 'weak') army.push({ ...line2, id: f.lines[1].key, factionId: f.id, tier:'basic', team:'enemy', count: Math.ceil(2*scale) });
+            if (tier === 'boss' || tier === 'finalboss') {
+                const line4 = f.lines[3].basic;
+                army.push({ ...line4, id: f.lines[3].key, factionId: f.id, tier:'basic', team:'enemy', count: Math.ceil(1*scale) });
+            }
+            return army;
+        }
+
+        function revealFog(levelIndex, r, c, radius) {
+            const lvl = state.levels[levelIndex];
+            for (let dr=-radius; dr<=radius; dr++) {
+                for (let dc=-radius; dc<=radius; dc++) {
+                    const nr=r+dr, nc=c+dc;
+                    if (nr>=0 && nr<WROWS && nc>=0 && nc<WCOLS && Math.abs(dr)+Math.abs(dc)<=radius) {
+                        lvl.explored[nr][nc] = true;
+                    }
+                }
+            }
+        }
+
+        // ==================== 鬥法地形生成 ====================
+        function generateBattleTerrain() {
+            const terrain = Array(BROWS).fill(null).map(() => Array(BCOLS).fill('PLAIN'));
+            for (let r = 1; r < BROWS-1; r++) {
+                for (let c = 1; c < BCOLS-1; c++) {
+                    const roll = Math.random();
+                    if (roll < 0.10) terrain[r][c] = 'OBSTACLE';
+                    else if (roll < 0.22) terrain[r][c] = 'FOREST';
+                    else if (roll < 0.30) terrain[r][c] = 'WATER';
+                }
+            }
+            return terrain;
+        }
+
+        function getIncome() {
+            let inc = { gold: 10, wood: 5, ore: 3, crystals: 1 };
+            inc.gold += (state.buildings.townHall.level - 1) * 15;
+            inc.wood += (state.buildings.sawmill.level - 1) * 8;
+            inc.ore  += (state.buildings.mine.level - 1) * 5;
+            return inc;
+        }
+
+        function heroBonus() {
+            const b = { atk:0, def:0, mana:0, speed:0 };
+            Object.keys(state.hero.talents).forEach(tid => {
+                const t = TALENTS.find(x=>x.id===tid);
+                const n = state.hero.talents[tid];
+                if (t) Object.keys(t.bonus).forEach(k => b[k] += t.bonus[k]*n);
+            });
+            Object.values(state.hero.equipment).forEach(item => {
+                if (item) Object.keys(item.bonus).forEach(k => b[k] += item.bonus[k]);
+            });
+            return b;
+        }
+
+        // ==================== 初始化 ====================
+        function initGame() {
+            renderFactionModal();
+            setupEventListeners();
+        }
+
+        function renderFactionModal() {
+            const grid = document.getElementById('factionGrid');
+            grid.innerHTML = '';
+            Object.values(FACTIONS).forEach(f => {
+                const card = document.createElement('div');
+                card.className = 'faction-card';
+                card.innerHTML = `<div class="f-emoji">${f.emoji}</div><div class="f-name">${f.name}</div><div class="f-desc">${f.desc}</div>`;
+                card.addEventListener('click', () => chooseFaction(f.id));
+                grid.appendChild(card);
+            });
+        }
+
+        function chooseFaction(factionId) {
+            state = newGameState(factionId);
+            document.getElementById('factionModal').style.display = 'none';
+            generateLevelMap(0);
+            render();
+            addLog('system', `⚜️ 拜入 ${FACTIONS[factionId].name}！${state.hero.emoji} ${state.hero.name} 自越國起步，仙途就此展開。`);
+        }
+
+        // ==================== 渲染 ====================
+        function render() {
+            if (!state) return;
+            const inc = getIncome();
+            const hb = heroBonus();
+            document.getElementById('valGold').textContent = state.resources.gold;
+            document.getElementById('valWood').textContent = state.resources.wood;
+            document.getElementById('valOre').textContent = state.resources.ore;
+            document.getElementById('valCrystals').textContent = state.resources.crystals;
+            document.getElementById('valMana').textContent = state.resources.mana;
+            document.getElementById('manaMax').textContent = state.resources.manaMax + hb.mana;
+
+            document.getElementById('incGold').textContent = inc.gold;
+            document.getElementById('incWood').textContent = inc.wood;
+            document.getElementById('incOre').textContent = inc.ore;
+            document.getElementById('incCrystals').textContent = inc.crystals;
+
+            const modeEl = document.getElementById('modeStatus');
+            const turnInfoEl = document.getElementById('turnInfo');
+            const btnAction = document.getElementById('btnActionTurn');
+            const btnCancel = document.getElementById('btnCancelSpell');
+
+            btnCancel.style.display = state.castingSpell ? 'flex' : 'none';
+
+            if (state.mode === 'world') {
+                const lvl = state.levels[state.currentLevelIndex];
+                modeEl.textContent = `境況: 🗺️ ${lvl.name}`;
+                modeEl.style.color = 'var(--accent-gold)';
+                const bossState = lvl.portalUnlocked ? '🌀 傳送陣已開啟' : '👑 守關魔頭未除';
+                turnInfoEl.textContent = `第 ${state.currentLevelIndex+1} 重 | 回合: ${state.worldTurn} | 腳程: ${state.stepsLeft}/5 | ${bossState}`;
+                btnAction.className = 'btn btn-danger';
+                btnAction.textContent = '⏳ 結束今日遊歷';
+                btnAction.disabled = false;
+            } else {
+                modeEl.textContent = '境況: ⚔️ 鬥法對決';
+                modeEl.style.color = 'var(--accent-red)';
+                turnInfoEl.textContent = `鬥法回合: ${state.battle.turn} (${state.battle.phase === 'player' ? '我方回合' : '敵方回合'})`;
+                btnAction.className = 'btn btn-warning';
+                btnAction.textContent = '🛡️ 結束我方鬥法回合';
+                btnAction.disabled = (state.battle.phase !== 'player');
+            }
+
+            renderBuildings();
+            renderRecruitList();
+            renderArmyStatus();
+            renderHeroPanel();
+            renderSpellList();
+            renderBoard();
+        }
+
+        function renderBuildings() {
+            const container = document.getElementById('buildingList');
+            container.innerHTML = '';
+            const faction = FACTIONS[state.factionId];
+            Object.keys(state.buildings).forEach(key => {
+                const b = state.buildings[key];
+                const div = document.createElement('div');
+                div.className = 'build-item';
+                const isLine = faction.lines.some(l => l.key === key);
+                let btnTxt, canUpgrade, costTxt;
+                if (isLine) {
+                    if (b.level === 0) { btnTxt = `開建(${b.cost.gold}💰)`; costTxt = ''; canUpgrade = state.mode==='world' && hasEnoughRes(b.cost); }
+                    else if (b.level < b.maxLvl) { btnTxt = `進階(${b.upgCost.gold}💰)`; canUpgrade = state.mode==='world' && hasEnoughRes(b.upgCost); }
+                    else { btnTxt = '已大成'; canUpgrade = false; }
+                } else {
+                    btnTxt = b.level >= b.maxLvl ? '已臻圓滿' : `升級(${b.cost.gold}💰)`;
+                    canUpgrade = b.level < b.maxLvl && state.resources.gold >= b.cost.gold && state.mode === 'world';
+                }
+                div.innerHTML = `<div class="info"><strong>${b.emoji} ${b.name}</strong> (Lv.${b.level})<span class="sub">${b.desc}</span></div>
+                    <button class="btn btn-primary btn-small" ${canUpgrade ? '' : 'disabled'} onclick="upgradeBuilding('${key}')">${btnTxt}</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function hasEnoughRes(cost) {
+            return Object.keys(cost).every(k => (state.resources[k]||0) >= cost[k]);
+        }
+        function spendRes(cost) {
+            Object.keys(cost).forEach(k => state.resources[k] -= cost[k]);
+        }
+
+        window.upgradeBuilding = function(key) {
+            const b = state.buildings[key];
+            const faction = FACTIONS[state.factionId];
+            const isLine = faction.lines.some(l => l.key === key);
+            if (isLine) {
+                if (b.level === 0 && hasEnoughRes(b.cost)) { spendRes(b.cost); b.level = 1; addLog('system', `🏗️ 開建了 ${b.emoji} ${b.name}！`); }
+                else if (b.level === 1 && hasEnoughRes(b.upgCost)) { spendRes(b.upgCost); b.level = 2; addLog('system', `⬆️ ${b.name} 已然大成，可招收高階弟子！`); }
+            } else {
+                if (state.resources.gold >= b.cost.gold) { state.resources.gold -= b.cost.gold; b.level++; }
+                if (key === 'mageGuild') { state.resources.manaMax = 50 + (state.buildings.mageGuild.level-1)*20; }
+            }
+            render();
+        }
+
+        function renderRecruitList() {
+            const container = document.getElementById('recruitList');
+            container.innerHTML = '';
+            const faction = FACTIONS[state.factionId];
+            faction.lines.forEach(line => {
+                const b = state.buildings[line.key];
+                if (b.level === 0) return;
+                const unit = b.level >= 2 ? line.upg : line.basic;
+                const tier = b.level >= 2 ? 'upg' : 'basic';
+                const div = document.createElement('div');
+                div.className = 'build-item';
+                const canAfford = hasEnoughRes(unit.cost) && state.mode==='world';
+                div.innerHTML = `<div class="info"><strong>${unit.emoji} ${unit.name}</strong><span class="sub">${unit.cost.gold}💰 ${unit.flying?'✈️禦空 ':''}${unit.ranged?'🏹遠攻 ':''}${unit.ability?('法效:'+(unit.ability==='poison'?'☠️屍毒':'🩸血煞')):''}</span></div>
+                    <button class="btn btn-success btn-small" ${canAfford ? '' : 'disabled'} onclick="recruitUnit('${line.key}','${tier}')">+1收徒</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        window.recruitUnit = function(lineKey, tier) {
+            const faction = FACTIONS[state.factionId];
+            const line = faction.lines.find(l => l.key === lineKey);
+            const unit = tier === 'upg' ? line.upg : line.basic;
+            if (!hasEnoughRes(unit.cost)) return;
+            spendRes(unit.cost);
+            const uid = lineKey + '_' + tier;
+            let existing = state.playerArmy.find(a => a.id === lineKey && a.tier === tier);
+            if (existing) existing.count++;
+            else state.playerArmy.push({ ...unit, id: lineKey, factionId: faction.id, tier, count: 1 });
+            render();
+        }
+
+        function renderArmyStatus() {
+            document.getElementById('armyStatus').innerHTML = state.playerArmy.map(a =>
+                `<div style="margin-bottom:4px;">${a.emoji} ${a.name} x ${a.count} ${a.flying?'✈️':''}${a.ranged?'🏹':''}</div>`
+            ).join('') || '<div class="sub">門下暫無弟子</div>';
+        }
+
+        function renderHeroPanel() {
+            const hero = state.hero;
+            const hb = heroBonus();
+            document.getElementById('heroInfo').innerHTML = `
+                <div style="text-align:center; font-size:2.2rem;">${hero.emoji}</div>
+                <div style="text-align:center; font-weight:bold; color:var(--accent-gold);">${hero.name}</div>
+                <div class="stat-bar"><span>境界</span><span>第 ${hero.level} 層</span></div>
+                <div class="stat-bar"><span>修為</span><span>${hero.xp} / ${hero.xpNext}</span></div>
+                <div class="stat-bar"><span>可用功法點</span><span>${hero.talentPoints}</span></div>
+                <div class="stat-bar"><span>⚔️ 全體弟子攻擊加成</span><span>+${hb.atk}</span></div>
+                <div class="stat-bar"><span>🛡️ 全體弟子減傷加成</span><span>+${hb.def*5}%</span></div>
+                <div class="stat-bar"><span>🔮 法力上限加成</span><span>+${hb.mana}</span></div>
+                <div class="stat-bar"><span>💨 全體弟子遁速加成</span><span>+${hb.speed}</span></div>
+            `;
+
+            const talentList = document.getElementById('talentList');
+            talentList.innerHTML = `<div class="sub" style="margin-bottom:6px;">可用功法點：${hero.talentPoints}</div>` + TALENTS.map(t => {
+                const n = hero.talents[t.id] || 0;
+                return `<div class="talent-item"><div>${t.emoji} ${t.name} (已修 ${n})<br><span class="sub">${t.desc}</span></div>
+                    <button class="btn btn-purple btn-small" ${hero.talentPoints>0?'':'disabled'} onclick="learnTalent('${t.id}')">參悟</button></div>`;
+            }).join('');
+
+            const equipSlots = document.getElementById('equipSlots');
+            const slotNames = { helmet:'⛑️法冠', weapon:'🗡️法器', armor:'🥋護甲', boots:'👢遁靴' };
+            equipSlots.innerHTML = Object.keys(slotNames).map(slot => {
+                const item = hero.equipment[slot];
+                return `<div class="equip-slot ${item?'filled':''}" onclick="${item?`unequipItem('${slot}')`:''}">
+                    <span class="e-emoji">${item ? item.emoji : slotNames[slot][0]}</span>${item ? item.name : slotNames[slot].slice(1)}</div>`;
+            }).join('');
+
+            const invList = document.getElementById('inventoryList');
+            invList.innerHTML = hero.inventory.length === 0 ? '<div class="sub">儲物袋空空如也，去尋覓機緣遺寶吧！</div>' :
+                hero.inventory.map((item, idx) => `<div class="build-item"><div>${item.emoji} ${item.name} (${item.slot})</div>
+                    <button class="btn btn-success btn-small" onclick="equipItem(${idx})">佩戴</button></div>`).join('');
+        }
+
+        window.learnTalent = function(tid) {
+            if (state.hero.talentPoints <= 0) return;
+            state.hero.talentPoints--;
+            state.hero.talents[tid] = (state.hero.talents[tid]||0) + 1;
+            addLog('system', `🌟 參悟功法：${TALENTS.find(t=>t.id===tid).name}！`);
+            render();
+        }
+
+        window.equipItem = function(idx) {
+            const hero = state.hero;
+            const item = hero.inventory[idx];
+            if (!item) return;
+            const old = hero.equipment[item.slot];
+            hero.equipment[item.slot] = item;
+            hero.inventory.splice(idx, 1);
+            if (old) hero.inventory.push(old);
+            addLog('system', `🎒 祭煉並佩戴了 ${item.emoji} ${item.name}！`);
+            render();
+        }
+
+        window.unequipItem = function(slot) {
+            const hero = state.hero;
+            const item = hero.equipment[slot];
+            if (!item) return;
+            hero.equipment[slot] = null;
+            hero.inventory.push(item);
+            render();
+        }
+
+        function renderSpellList() {
+            const container = document.getElementById('spellList');
+            const hb = heroBonus();
+            const manaMax = state.resources.manaMax + hb.mana;
+            container.innerHTML = Object.values(SPELLS).map(s => {
+                const usable = (s.usableIn === state.mode) && state.resources.mana >= s.cost;
+                const isActive = state.castingSpell === s.id;
+                return `<div class="build-item ${isActive?'active':''}" style="${isActive?'outline:2px solid var(--accent-purple);':''}">
+                    <div class="info"><strong>${s.emoji} ${s.name}</strong> <span class="sub">[${s.school}｜耗法力${s.cost}]</span><span class="sub">${s.desc}</span></div>
+                    <button class="btn ${isActive?'btn-danger':'btn-purple'} btn-small" ${usable||isActive ? '' : 'disabled'} onclick="toggleSpell('${s.id}')">${isActive?'罷手':'施展'}</button>
+                </div>`;
+            }).join('') + `<div class="sub" style="margin-top:6px;">法力：${state.resources.mana} / ${manaMax}</div>`;
+        }
+
+        window.toggleSpell = function(spellId) {
+            if (state.castingSpell === spellId) { state.castingSpell = null; }
+            else {
+                const s = SPELLS[spellId];
+                if (s.usableIn !== state.mode) { addLog('system', `⚠️ ${s.name} 於此處無法施展。`); return; }
+                if (state.resources.mana < s.cost) { addLog('system', `⚠️ 法力不繼，無法施展 ${s.name}。`); return; }
+                state.castingSpell = spellId;
+                clearBattleHighlights();
+            }
+            render();
+        }
+
+        // ==================== 棋盤渲染 ====================
+        function sizeBoardBox(boardEl, rows, cols) {
+            // 依可用寬度計算棋盤高度，維持方格為正方形，並避免內容溢出蓋住下方的鬥法紀錄欄
+            const width = boardEl.clientWidth || boardEl.parentElement.clientWidth || 300;
+            const maxAvailable = Math.max(240, Math.min(620, window.innerHeight * 0.55));
+            let height = width * rows / cols;
+            if (height > maxAvailable) height = maxAvailable;
+            boardEl.style.height = height + 'px';
+        }
+
+        function renderBoard() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+
+            if (state.mode === 'world') {
+                boardEl.style.gridTemplateColumns = `repeat(${WCOLS}, 1fr)`;
+                boardEl.style.gridTemplateRows = `repeat(${WROWS}, 1fr)`;
+                sizeBoardBox(boardEl, WROWS, WCOLS);
+                const lvl = state.levels[state.currentLevelIndex];
+                for (let r = 0; r < WROWS; r++) {
+                    for (let c = 0; c < WCOLS; c++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        const explored = lvl.explored[r][c];
+                        if (!explored) {
+                            cell.classList.add('fogged');
+                        } else {
+                            const item = lvl.map[r][c];
+                            if (item) {
+                                const emojiEl = document.createElement('div');
+                                emojiEl.className = 'cell-emoji';
+                                emojiEl.textContent = item.emoji;
+                                cell.appendChild(emojiEl);
+                            }
+                        }
+                        if (state.castingSpell) cell.classList.add('spellable');
+                        cell.addEventListener('click', () => handleWorldClick(r, c));
+                        boardEl.appendChild(cell);
+                    }
+                }
+            } else {
+                boardEl.style.gridTemplateColumns = `repeat(${BCOLS}, 1fr)`;
+                boardEl.style.gridTemplateRows = `repeat(${BROWS}, 1fr)`;
+                sizeBoardBox(boardEl, BROWS, BCOLS);
+                const battle = state.battle;
+                for (let r = 0; r < BROWS; r++) {
+                    for (let c = 0; c < BCOLS; c++) {
+                        const cell = document.createElement('div');
+                        const terr = battle.terrain[r][c];
+                        cell.className = 'cell';
+                        if (terr === 'FOREST') cell.classList.add('terrain-forest');
+                        if (terr === 'OBSTACLE') cell.classList.add('terrain-obstacle');
+                        if (terr === 'WATER') cell.classList.add('terrain-water');
+                        if (TERRAIN[terr].emoji) {
+                            const ti = document.createElement('div');
+                            ti.className = 'terrain-icon';
+                            ti.textContent = TERRAIN[terr].emoji;
+                            cell.appendChild(ti);
+                        }
+
+                        if (battle.selectedCell && battle.selectedCell.r === r && battle.selectedCell.c === c) cell.classList.add('selected');
+                        if (battle.reachableCells.some(p => p.r === r && p.c === c)) cell.classList.add('reachable');
+                        if (battle.attackableCells.some(p => p.r === r && p.c === c)) cell.classList.add('attackable');
+                        if (state.castingSpell && SPELLS[state.castingSpell].usableIn === 'battle') cell.classList.add('spellable');
+
+                        const unit = battle.board[r][c];
+                        if (unit) {
+                            if (unit.hasMoved && unit.hasAttacked) cell.classList.add('has-acted');
+                            const emojiEl = document.createElement('div');
+                            emojiEl.className = 'cell-emoji';
+                            emojiEl.textContent = unit.emoji;
+
+                            const countEl = document.createElement('div');
+                            countEl.className = 'cell-badge';
+                            countEl.textContent = unit.count;
+
+                            cell.appendChild(emojiEl);
+                            cell.appendChild(countEl);
+
+                            if (unit.statuses && unit.statuses.length) {
+                                const row = document.createElement('div');
+                                row.className = 'status-row';
+                                unit.statuses.forEach(st => {
+                                    const icon = document.createElement('div');
+                                    icon.className = 'status-icon';
+                                    icon.textContent = st.type === 'poison' ? '☠️' : st.type === 'bleed' ? '🩸' : st.type === 'root' ? '❄️' : '❓';
+                                    row.appendChild(icon);
+                                });
+                                cell.appendChild(row);
+                            }
+                        }
+                        cell.addEventListener('click', () => handleBattleClick(r, c));
+                        boardEl.appendChild(cell);
+                    }
+                }
+            }
+        }
+
+        // ==================== 世界地圖操作 ====================
+        function handleWorldClick(r, c) {
+            if (state.castingSpell) {
+                castWorldSpell(r, c);
+                return;
+            }
+            if (state.stepsLeft <= 0) return;
+            const hr = state.heroPos.r, hc = state.heroPos.c;
+            if (Math.abs(hr - r) + Math.abs(hc - c) === 1) {
+                moveHeroTo(r, c);
+            }
+        }
+
+        function moveHeroTo(r, c) {
+            const lvl = state.levels[state.currentLevelIndex];
+            const target = lvl.map[r][c];
+            lvl.map[state.heroPos.r][state.heroPos.c] = null;
+            state.heroPos = { r, c };
+            state.stepsLeft--;
+            revealFog(state.currentLevelIndex, r, c, 2);
+
+            if (target) {
+                if (target.type === 'MONSTER' || target.type === 'BOSS') {
+                    // 記住鬥法發生的格子，戰後修士要站回這一格
+                    state.battleTile = { r, c };
+                    startBattle(target.enemy, target.type === 'BOSS');
+                    return;
+                }
+                if (target.type === 'CHEST') {
+                    const item = EQUIPMENT_ITEMS[Math.floor(Math.random()*EQUIPMENT_ITEMS.length)];
+                    state.hero.inventory.push({...item});
+                    addLog('system', `📦 開啟遺落儲物袋，得法寶：${item.emoji} ${item.name}！`);
+                }
+                if (target.type === 'MINE_GOLD' || target.type === 'MINE_WOOD' || target.type === 'MINE_ORE') {
+                    addLog('system', `⛏️ 收服了 ${target.name}！`);
+                }
+                if (target.type === 'PORTAL') {
+                    goToNextLevel();
+                    render();
+                    return;
+                }
+            }
+
+            lvl.map[r][c] = { type: 'HERO', emoji: state.hero.emoji };
+            checkPortal();
+            render();
+        }
+
+        // 本重守關魔頭被誅後，於地圖上浮現前往下一重的傳送法陣
+        function checkPortal() {
+            const idx = state.currentLevelIndex;
+            const lvl = state.levels[idx];
+            if (!lvl || !lvl.map) return;
+            if (!lvl.bossDefeated || lvl.portalUnlocked) return;
+
+            // 優先浮現在宗門山門旁；無山門則浮現在修士（誅殺守關魔頭處）旁
+            const town = findTile(lvl.map, 'TOWN');
+            const anchor = town || state.heroPos || { r: WROWS-1, c: 0 };
+            const spot = findFreeSpotNear(lvl.map, anchor.r, anchor.c);
+            if (!spot) return;
+
+            lvl.portalUnlocked = true;
+            lvl.map[spot.r][spot.c] = { type: 'PORTAL', emoji: '🌀', name: `傳送法陣（通往第 ${idx+2} 重）` };
+            lvl.explored[spot.r][spot.c] = true;
+            addLog('system', `🌀 守關魔頭已誅，天地靈氣匯聚，通往第 ${idx+2} 重的傳送法陣浮現！`);
+        }
+
+        // 踏上傳送法陣：隨機生成新地圖與新守關魔頭，重數無上限
+        function goToNextLevel() {
+            const oldIdx = state.currentLevelIndex;
+            clearHeroTiles(oldIdx);
+            const oldLvl = state.levels[oldIdx];
+            if (oldLvl) { oldLvl.map = null; oldLvl.explored = null; }   // 舊層不再返回，釋放記憶體
+
+            const nextIdx = oldIdx + 1;
+            state.levels[nextIdx] = makeLevelData(nextIdx);              // 每次都是全新隨機地圖
+            state.currentLevelIndex = nextIdx;
+            state.heroPos = null;
+            generateLevelMap(nextIdx);
+            placeHeroOnLevel();
+            state.stepsLeft = 5;                                          // 抵達新地圖補滿行動點
+            state.resources.mana = Math.min(state.resources.manaMax + heroBonus().mana, state.resources.mana + 20);
+            addLog('system', `🌀 遁光落地！踏入 ${state.levels[nextIdx].name}，新的守關魔頭已在前方。`);
+        }
+
+        function findTile(map, type) {
+            for (let r=0;r<WROWS;r++) for (let c=0;c<WCOLS;c++) if (map[r][c] && map[r][c].type===type) return {r,c};
+            return null;
+        }
+
+        // 從 (r,c) 開始向外找第一個空格（含自己）
+        function findFreeSpotNear(map, r, c) {
+            const seen = Array(WROWS).fill(null).map(() => Array(WCOLS).fill(false));
+            const queue = [{ r, c }];
+            seen[r][c] = true;
+            while (queue.length) {
+                const cur = queue.shift();
+                if (!map[cur.r][cur.c]) return { r: cur.r, c: cur.c };
+                [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc]) => {
+                    const nr = cur.r + dr, nc = cur.c + dc;
+                    if (nr>=0 && nr<WROWS && nc>=0 && nc<WCOLS && !seen[nr][nc]) {
+                        seen[nr][nc] = true;
+                        queue.push({ r: nr, c: nc });
+                    }
+                });
+            }
+            return null;
+        }
+
+        // 清除某重地圖上殘留的修士格，避免出現分身
+        function clearHeroTiles(levelIndex) {
+            const lvl = state.levels[levelIndex];
+            if (!lvl || !lvl.map) return;
+            for (let r=0;r<WROWS;r++) for (let c=0;c<WCOLS;c++) {
+                if (lvl.map[r][c] && lvl.map[r][c].type === 'HERO') lvl.map[r][c] = null;
+            }
+        }
+
+        // 把修士實際畫回地圖，並同步 heroPos
+        function placeHeroOnLevel(anchorType) {
+            const idx = state.currentLevelIndex;
+            const lvl = state.levels[idx];
+            if (!lvl.map) generateLevelMap(idx);
+
+            let spot = findTile(lvl.map, 'HERO');          // 新生成的地圖本來就有修士格
+            if (!spot && anchorType) {
+                const anchor = findTile(lvl.map, anchorType);
+                if (anchor) spot = findFreeSpotNear(lvl.map, anchor.r, anchor.c);
+            }
+            if (!spot && state.heroPos) {
+                spot = findFreeSpotNear(lvl.map, state.heroPos.r, state.heroPos.c);
+            }
+            if (!spot) spot = findFreeSpotNear(lvl.map, WROWS-1, 0);
+            if (!spot) spot = { r: WROWS-1, c: 0 };
+
+            clearHeroTiles(idx);
+            state.heroPos = { r: spot.r, c: spot.c };
+            lvl.map[spot.r][spot.c] = { type: 'HERO', emoji: state.hero.emoji, name: '本尊' };
+            revealFog(idx, spot.r, spot.c, 2);
+        }
+
+        function castWorldSpell(r, c) {
+            const s = SPELLS[state.castingSpell];
+            if (s.id !== 'BLINK') { addLog('system', '⚠️ 此術無法於遊歷地圖施展。'); return; }
+            const lvl = state.levels[state.currentLevelIndex];
+            if (!lvl.explored[r][c]) { addLog('system', '⚠️ 只能遁往已探明之地。'); return; }
+            if (lvl.map[r][c]) { addLog('system', '⚠️ 該處已有他物佔據。'); return; }
+            state.resources.mana -= s.cost;
+            lvl.map[state.heroPos.r][state.heroPos.c] = null;
+            state.heroPos = { r, c };
+            lvl.map[r][c] = { type:'HERO', emoji: state.hero.emoji };
+            revealFog(state.currentLevelIndex, r, c, 2);
+            state.castingSpell = null;
+            addLog('magic', `🌀 遁光一閃，縮地成寸！`);
+            render();
+        }
+
+        // ==================== 鬥法系統 ====================
+        function startBattle(enemyArmy, isBoss) {
+            state.mode = 'battle';
+            const terrain = generateBattleTerrain();
+            for (let c=0;c<BCOLS;c++) { terrain[0][c]='PLAIN'; terrain[BROWS-1][c]='PLAIN'; }
+
+            state.battle = {
+                turn: 1, phase: 'player', isBoss: !!isBoss,
+                terrain,
+                board: Array(BROWS).fill(null).map(() => Array(BCOLS).fill(null)),
+                selectedCell: null, reachableCells: [], attackableCells: []
+            };
+
+            const hb = heroBonus();
+            let idx = 0;
+            const midStart = Math.floor(BCOLS/2) - state.playerArmy.length;
+            state.playerArmy.forEach(a => {
+                if (a.count > 0) {
+                    state.battle.board[BROWS-1][Math.max(0, midStart) + idx*2] = {
+                        ...a, maxHp: a.hp, team: 'player', hasMoved: false, hasAttacked: false, retaliated: false, statuses: []
+                    };
+                    idx++;
+                }
+            });
+
+            idx = 0;
+            const midStartE = Math.floor(BCOLS/2) - enemyArmy.length;
+            enemyArmy.forEach(e => {
+                state.battle.board[0][Math.max(0, midStartE) + idx*2] = {
+                    ...e, maxHp: e.hp, team: 'enemy', hasMoved: false, hasAttacked: false, retaliated: false, statuses: []
+                };
+                idx++;
+            });
+
+            state.castingSpell = null;
+            render();
+            addLog('system', `⚔️ 狹路相逢，鬥法起！留意靈木林掩蔽與寒潭、亂石阻隔。`);
+        }
+
+        function clearBattleHighlights() {
+            if (!state.battle) return;
+            state.battle.selectedCell = null;
+            state.battle.reachableCells = [];
+            state.battle.attackableCells = [];
+        }
+
+        function handleBattleClick(r, c) {
+            const battle = state.battle;
+            if (!battle) return;
+
+            if (state.castingSpell) {
+                castBattleSpell(r, c);
+                return;
+            }
+
+            if (battle.phase !== 'player') return;
+            const sel = battle.selectedCell;
+
+            if (sel && battle.reachableCells.some(p => p.r === r && p.c === c)) {
+                const u = battle.board[sel.r][sel.c];
+                battle.board[r][c] = u;
+                u.hasMoved = true;
+                battle.board[sel.r][sel.c] = null;
+                battle.selectedCell = { r, c };
+                calcBattleRange(r, c);
+                render();
+                return;
+            }
+
+            if (sel && battle.attackableCells.some(p => p.r === r && p.c === c)) {
+                performAttack(sel.r, sel.c, r, c);
+                return;
+            }
+
+            const targetUnit = battle.board[r][c];
+            if (targetUnit && targetUnit.team === 'player' && !(targetUnit.hasMoved && targetUnit.hasAttacked)) {
+                battle.selectedCell = { r, c };
+                calcBattleRange(r, c);
+                render();
+                return;
+            }
+
+            clearBattleHighlights();
+            render();
+        }
+
+        // 移動：依地形成本進行 BFS（飛行單位無視地形成本與障礙，僅需距離內且降落格未被佔用/非岩石）
+        function calcBattleRange(r, c) {
+            const battle = state.battle;
+            const u = battle.board[r][c];
+            battle.reachableCells = [];
+            battle.attackableCells = [];
+            if (!u) return;
+
+            const hb = heroBonus();
+            const speed = u.speed + (u.team === 'player' ? hb.speed : 0);
+            const isRooted = (u.statuses||[]).some(s => s.type === 'root');
+
+            if (!u.hasMoved && !isRooted) {
+                if (u.flying) {
+                    for (let dr = -speed; dr <= speed; dr++) {
+                        for (let dc = -speed; dc <= speed; dc++) {
+                            const nr = r+dr, nc = c+dc;
+                            if (nr<0||nr>=BROWS||nc<0||nc>=BCOLS) continue;
+                            if (Math.abs(dr)+Math.abs(dc) > speed) continue;
+                            if (nr===r && nc===c) continue;
+                            if (battle.terrain[nr][nc] === 'OBSTACLE') continue;
+                            if (battle.board[nr][nc]) continue;
+                            battle.reachableCells.push({ r: nr, c: nc });
+                        }
+                    }
+                } else {
+                    // BFS 依地形移動成本
+                    const cost = Array(BROWS).fill(null).map(()=>Array(BCOLS).fill(Infinity));
+                    cost[r][c] = 0;
+                    const queue = [{ r, c, cost: 0 }];
+                    while (queue.length) {
+                        const cur = queue.shift();
+                        const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+                        for (const [dr,dc] of dirs) {
+                            const nr = cur.r+dr, nc = cur.c+dc;
+                            if (nr<0||nr>=BROWS||nc<0||nc>=BCOLS) continue;
+                            const terr = TERRAIN[battle.terrain[nr][nc]];
+                            if (!terr.passable) continue;
+                            if (battle.board[nr][nc]) continue;
+                            const newCost = cur.cost + terr.moveCost;
+                            if (newCost <= speed && newCost < cost[nr][nc]) {
+                                cost[nr][nc] = newCost;
+                                queue.push({ r: nr, c: nc, cost: newCost });
+                                battle.reachableCells.push({ r: nr, c: nc });
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!u.hasAttacked) {
+                for (let dr = -u.range; dr <= u.range; dr++) {
+                    for (let dc = -u.range; dc <= u.range; dc++) {
+                        const nr = r + dr, nc = c + dc;
+                        if (nr >= 0 && nr < BROWS && nc >= 0 && nc < BCOLS && Math.abs(dr) + Math.abs(dc) <= u.range && !(dr===0&&dc===0)) {
+                            const t = battle.board[nr][nc];
+                            if (t && t.team !== u.team) battle.attackableCells.push({ r: nr, c: nc });
+                        }
+                    }
+                }
+            }
+        }
+
+        function isAdjacent(r1,c1,r2,c2) { return Math.abs(r1-r2)+Math.abs(c1-c2) <= 1 && !(r1===r2 && c1===c2); }
+
+        function hasAdjacentEnemy(battle, r, c, team) {
+            const dirs = [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]];
+            return dirs.some(([dr,dc]) => {
+                const nr=r+dr, nc=c+dc;
+                if (nr<0||nr>=BROWS||nc<0||nc>=BCOLS) return false;
+                const t = battle.board[nr][nc];
+                return t && t.team !== team;
+            });
+        }
+
+        function applyDamage(defender, dmg) {
+            const totalHp = (defender.count - 1) * defender.maxHp + defender.hp - dmg;
+            if (totalHp <= 0) return { dead: true };
+            defender.count = Math.ceil(totalHp / defender.maxHp);
+            defender.hp = totalHp % defender.maxHp || defender.maxHp;
+            return { dead: false };
+        }
+
+        function applyStatus(unit, type, turns) {
+            unit.statuses = unit.statuses || [];
+            const existing = unit.statuses.find(s => s.type === type);
+            if (existing) existing.turns = Math.max(existing.turns, turns);
+            else unit.statuses.push({ type, turns });
+        }
+
+        function performAttack(ar, ac, dr, dc) {
+            const battle = state.battle;
+            const attacker = battle.board[ar][ac];
+            const defender = battle.board[dr][dc];
+            const hb = heroBonus();
+            const dist = Math.abs(ar-dr)+Math.abs(ac-dc);
+            const isMelee = dist <= 1;
+
+            let dmg = (attacker.atk + (attacker.team==='player'?hb.atk:0)) * attacker.count;
+
+            // 遠程近戰懲罰：遠程單位若身邊有敵人貼身，攻擊傷害減半
+            if (attacker.ranged && hasAdjacentEnemy(battle, ar, ac, attacker.team)) {
+                dmg = Math.floor(dmg * 0.5);
+                addLog(attacker.team, `⚠️ ${attacker.name} 遭近身纏鬥，法術威力減半！`);
+            }
+
+            // 地形掩體：防禦方站在森林時減傷
+            const defTerrain = TERRAIN[battle.terrain[dr][dc]];
+            if (defTerrain.defBonus) dmg = Math.floor(dmg * (1 - defTerrain.defBonus));
+
+            // 全軍減傷天賦（防禦方為玩家時生效）
+            if (defender.team === 'player') dmg = Math.floor(dmg * (1 - hb.def*0.05));
+
+            const result = applyDamage(defender, dmg);
+            addLog(attacker.team, `${attacker.emoji}${attacker.name} 攻擊 ${defender.emoji}${defender.name}，造成 ${dmg} 點傷勢！`);
+
+            // 特殊效果：中毒 / 流血
+            if (!result.dead && attacker.ability === 'poison') { applyStatus(defender, 'poison', 3); addLog('system', `☠️ ${defender.name} 身中屍毒！`); }
+            if (!result.dead && attacker.ability === 'bleed') { applyStatus(defender, 'bleed', 3); addLog('system', `🩸 ${defender.name} 遭血煞蝕體！`); }
+
+            attacker.hasMoved = true; attacker.hasAttacked = true;
+
+            if (result.dead) {
+                battle.board[dr][dc] = null;
+            } else if (isMelee && !attacker.noCounter && !defender.retaliated) {
+                // 反擊限制：每回合每單位最多反擊一次；純遠程單位無法反擊近戰貼臉外的攻擊（此處距離已<=1所以視為近戰互毆）
+                const counterDmg = Math.floor((defender.atk + (defender.team==='player'?hb.atk:0)) * defender.count * 0.7);
+                const cResult = applyDamage(attacker, counterDmg);
+                addLog(defender.team, `↩️ ${defender.name} 反擊 ${attacker.name}，造成 ${counterDmg} 點傷勢！`);
+                defender.retaliated = true;
+                if (cResult.dead) battle.board[ar][ac] = null;
+            }
+
+            clearBattleHighlights();
+            checkBattleEnd();
+            render();
+        }
+
+        function castBattleSpell(r, c) {
+            const s = SPELLS[state.castingSpell];
+            const battle = state.battle;
+            if (state.resources.mana < s.cost) { addLog('system', '⚠️ 法力不繼！'); return; }
+
+            if (s.type === 'damage') {
+                let hit = false;
+                for (let dr=-s.aoe; dr<=s.aoe; dr++) {
+                    for (let dc=-s.aoe; dc<=s.aoe; dc++) {
+                        const nr=r+dr, nc=c+dc;
+                        if (nr<0||nr>=BROWS||nc<0||nc>=BCOLS) continue;
+                        if (Math.abs(dr)+Math.abs(dc) > s.aoe) continue;
+                        const t = battle.board[nr][nc];
+                        if (t && t.team === 'enemy') {
+                            applyDamage(t, s.dmg);
+                            hit = true;
+                            if ((t.count-1)*t.maxHp + t.hp <= 0) battle.board[nr][nc] = null;
+                        }
+                    }
+                }
+                if (!hit) { addLog('system', '⚠️ 法術範圍內並無敵修。'); return; }
+                addLog('magic', `🔥 施展 ${s.name}，範圍內敵修盡受重創！`);
+            } else if (s.type === 'control') {
+                const t = battle.board[r][c];
+                if (!t || t.team !== 'enemy') { addLog('system', '⚠️ 請擇一敵修為目標。'); return; }
+                applyStatus(t, 'root', s.duration + 1);
+                addLog('magic', `❄️ ${t.name} 遭玄冰禁制，暫時動彈不得！`);
+            } else if (s.type === 'buff') {
+                const t = battle.board[r][c];
+                if (!t || t.team !== 'player') { addLog('system', '⚠️ 請擇我方弟子施以療傷。'); return; }
+                const maxTotal = t.maxHp * t.count;
+                let curTotal = Math.min(maxTotal, (t.count-1)*t.maxHp + t.hp + s.heal);
+                t.count = Math.ceil(curTotal / t.maxHp);
+                t.hp = curTotal % t.maxHp || t.maxHp;
+                addLog('magic', `🌿 為 ${t.name} 療傷，回復 ${s.heal} 點氣血！`);
+            }
+
+            state.resources.mana -= s.cost;
+            state.castingSpell = null;
+            checkBattleEnd();
+            render();
+        }
+
+        function processStatuses(team) {
+            const battle = state.battle;
+            for (let r=0;r<BROWS;r++) {
+                for (let c=0;c<BCOLS;c++) {
+                    const u = battle.board[r][c];
+                    if (!u || u.team !== team || !u.statuses || !u.statuses.length) continue;
+                    const remaining = [];
+                    u.statuses.forEach(st => {
+                        if (st.type === 'poison' || st.type === 'bleed') {
+                            const dot = st.type === 'poison' ? 4 : 6;
+                            const result = applyDamage(u, dot * u.count > u.hp + (u.count-1)*u.maxHp ? (u.hp + (u.count-1)*u.maxHp) : dot);
+                            addLog('system', `${st.type === 'poison' ? '☠️' : '🩸'} ${u.name} 血氣持續耗損 ${dot} 點。`);
+                            if (result.dead) { battle.board[r][c] = null; return; }
+                        }
+                        st.turns--;
+                        if (st.turns > 0) remaining.push(st);
+                    });
+                    if (battle.board[r][c]) battle.board[r][c].statuses = remaining;
+                }
+            }
+        }
+
+        function handleActionTurn() {
+            if (state.mode === 'world') {
+                const inc = getIncome();
+                state.resources.gold += inc.gold; state.resources.wood += inc.wood; state.resources.ore += inc.ore; state.resources.crystals += inc.crystals;
+                const hb = heroBonus();
+                const manaMax = state.resources.manaMax + hb.mana;
+                state.resources.mana = Math.min(manaMax, state.resources.mana + 10 + state.buildings.mageGuild.level*3);
+                state.stepsLeft = 5; state.worldTurn++;
+                addLog('system', `☀️ 第 ${state.worldTurn} 日遊歷開始，靈石入庫！`);
+                render();
+            } else {
+                clearBattleHighlights();
+                state.castingSpell = null;
+                state.battle.phase = 'enemy';
+                addLog('system', `⏳ 我方收功，敵修出手中...`);
+                render();
+                setTimeout(runEnemyAI, 600);
+            }
+        }
+
+        function runEnemyAI() {
+            const battle = state.battle;
+            processStatuses('enemy');
+            if (checkBattleEnd()) return;
+
+            let enemies = [], players = [];
+            for (let r = 0; r < BROWS; r++) {
+                for (let c = 0; c < BCOLS; c++) {
+                    const u = battle.board[r][c];
+                    if (u) {
+                        if (u.team === 'enemy') enemies.push({ r, c, u });
+                        if (u.team === 'player') players.push({ r, c, u });
+                    }
+                }
+            }
+
+            enemies.forEach(e => {
+                if (!battle.board[e.r][e.c]) return; // 已在本回合陣亡
+                if ((e.u.statuses||[]).some(s=>s.type==='root')) return; // 被定身
+                let closest = null, minDist = Infinity;
+                players.forEach(p => {
+                    if (!battle.board[p.r][p.c]) return;
+                    const dist = Math.abs(e.r-p.r)+Math.abs(e.c-p.c);
+                    if (dist < minDist) { minDist = dist; closest = p; }
+                });
+                if (!closest) return;
+
+                if (minDist <= e.u.range) {
+                    let dmg = e.u.atk * e.u.count;
+                    if (e.u.ranged && hasAdjacentEnemy(battle, e.r, e.c, 'enemy')) dmg = Math.floor(dmg*0.5);
+                    const target = battle.board[closest.r][closest.c];
+                    const defTerrain = TERRAIN[battle.terrain[closest.r][closest.c]];
+                    if (defTerrain.defBonus) dmg = Math.floor(dmg*(1-defTerrain.defBonus));
+                    const hb = heroBonus();
+                    dmg = Math.floor(dmg * (1 - hb.def*0.05));
+                    const result = applyDamage(target, dmg);
+                    addLog('enemy', `${e.u.emoji}${e.u.name} 攻擊 ${target.name}，造成 ${dmg} 點傷勢！`);
+                    if (!result.dead && e.u.ability === 'poison') applyStatus(target, 'poison', 3);
+                    if (!result.dead && e.u.ability === 'bleed') applyStatus(target, 'bleed', 3);
+                    if (result.dead) { battle.board[closest.r][closest.c] = null; }
+                    else if (minDist<=1 && !e.u.noCounter) {
+                        const counterDmg = Math.floor(target.atk * target.count * 0.7);
+                        const cResult = applyDamage(e.u, counterDmg);
+                        addLog('player', `↩️ ${target.name} 反擊，造成 ${counterDmg} 點傷勢！`);
+                        if (cResult.dead) battle.board[e.r][e.c] = null;
+                    }
+                } else {
+                    const nr = e.r + Math.sign(closest.r - e.r);
+                    const nc = e.r === closest.r ? e.c + Math.sign(closest.c - e.c) : e.c;
+                    if (nr >= 0 && nr < BROWS && nc>=0 && nc<BCOLS && !battle.board[nr][nc] && (e.u.flying || TERRAIN[battle.terrain[nr][nc]].passable)) {
+                        battle.board[nr][nc] = e.u;
+                        battle.board[e.r][e.c] = null;
+                    }
+                }
+            });
+
+            checkBattleEnd();
+            finishEnemyTurn();
+        }
+
+        function finishEnemyTurn() {
+            if (state.mode !== 'battle') return;
+            const battle = state.battle;
+            processStatuses('player');
+            if (checkBattleEnd()) return;
+            for (let r = 0; r < BROWS; r++) {
+                for (let c = 0; c < BCOLS; c++) {
+                    if (battle.board[r][c]) {
+                        battle.board[r][c].hasMoved = false;
+                        battle.board[r][c].hasAttacked = false;
+                        battle.board[r][c].retaliated = false;
+                    }
+                }
+            }
+            battle.turn++; battle.phase = 'player';
+            addLog('system', `⚔️ 第 ${battle.turn} 回合鬥法！請下達法旨。`);
+            render();
+        }
+
+        function grantXP(amount) {
+            const hero = state.hero;
+            hero.xp += amount;
+            while (hero.xp >= hero.xpNext) {
+                hero.xp -= hero.xpNext;
+                hero.level++;
+                hero.xpNext = Math.floor(hero.xpNext * 1.5);
+                hero.talentPoints++;
+                addLog('system', `🌟 修為突破！境界升至第 ${hero.level} 層，獲得 1 點功法點！`);
+            }
+        }
+
+        function checkBattleEnd() {
+            if (!state.battle) return false;
+            let hasEnemy = false, hasPlayer = false;
+            for (let r = 0; r < BROWS; r++) {
+                for (let c = 0; c < BCOLS; c++) {
+                    if (state.battle.board[r][c]) {
+                        if (state.battle.board[r][c].team === 'enemy') hasEnemy = true;
+                        if (state.battle.board[r][c].team === 'player') hasPlayer = true;
+                    }
+                }
+            }
+
+            if (!hasEnemy) {
+                const wasBoss = state.battle.isBoss;
+                const idx = state.currentLevelIndex;
+                const depthBonus = 1 + 0.3 * idx;                       // 重數越深，機緣越豐厚
+                const goldReward = Math.round((wasBoss ? 300 : 150) * depthBonus);
+                const xpReward   = Math.round((wasBoss ? 150 : 50) * depthBonus);
+                addLog('system', `🏆 鬥法得勝！收得 ${goldReward} 💎 靈石！`);
+                state.resources.gold += goldReward;
+                grantXP(xpReward);
+                const lvl = state.levels[idx];
+                if (wasBoss) lvl.bossDefeated = true;
+                state.mode = 'world';
+                // 清掉被擊敗的敵人，修士佔據該格
+                if (lvl.map && state.battleTile) {
+                    const bt = state.battleTile;
+                    lvl.map[bt.r][bt.c] = null;
+                    state.heroPos = { r: bt.r, c: bt.c };
+                }
+                state.battleTile = null;
+                placeHeroOnLevel();
+                checkPortal();
+                render();
+                return true;
+            } else if (!hasPlayer) {
+                const lostGold = Math.floor(state.resources.gold * 0.2);
+                state.resources.gold -= lostGold;
+                addLog('system', `💀 鬥法落敗！倉皇遁走，散去 ${lostGold} 💎 靈石。`);
+                state.mode = 'world';
+                state.battleTile = null;
+                clearHeroTiles(state.currentLevelIndex);
+                state.heroPos = { r: WROWS-1, c: 0 };
+                placeHeroOnLevel('TOWN');   // 有山門就退回山門旁，否則退回起始角落
+                render();
+                return true;
+            }
+            return false;
+        }
+
+        // ==================== 存讀檔 ====================
+        function exportSave() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const anchor = document.createElement('a');
+            anchor.setAttribute("href", dataStr);
+            anchor.setAttribute("download", `fanren_tiannan_save_${new Date().toISOString().slice(0,10)}.json`);
+            anchor.click();
+        }
+
+        function importSave(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                state = JSON.parse(e.target.result);
+                document.getElementById('factionModal').style.display = 'none';
+                render();
+            };
+            reader.readAsText(file);
+        }
+
+        function addLog(type, text) {
+            const logEl = document.getElementById('gameLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString().slice(0,5)}] ${text}`;
+            logEl.appendChild(entry);
+        }
+
+        function setupEventListeners() {
+            document.getElementById('btnActionTurn').addEventListener('click', handleActionTurn);
+            document.getElementById('btnCancelSpell').addEventListener('click', () => { state.castingSpell = null; render(); });
+            document.getElementById('exportBtn').addEventListener('click', exportSave);
+            document.getElementById('importBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+            document.getElementById('fileInput').addEventListener('change', importSave);
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const tab = btn.dataset.tab;
+                    document.getElementById('tab-build').style.display = tab === 'build' ? 'block' : 'none';
+                    document.getElementById('tab-hero').style.display = tab === 'hero' ? 'block' : 'none';
+                    document.getElementById('tab-magic').style.display = tab === 'magic' ? 'block' : 'none';
+                });
+            });
+
+            let resizeTimer = null;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => { if (state) renderBoard(); }, 120);
+            });
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
